@@ -40,8 +40,10 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
             FolderMeta = ConfigurationManager.AppSettings.Get("folder_c");
 
 
-            LinesCounter counter = new LinesCounter();
+            LinesCounter counter = new LinesCounter(FolderMeta);
             FilesCounter filesCounter = new FilesCounter(FolderOutput);
+
+            MidnightTimer midnightTimer = new MidnightTimer(counter);
 
             ProcessFileTXT txtFileProcessor = new ProcessFileTXT();
             FilesProcessing txtProcessing = new FilesProcessing(FolderInput, "*.txt",FolderOutput, txtFileProcessor, counter, filesCounter);

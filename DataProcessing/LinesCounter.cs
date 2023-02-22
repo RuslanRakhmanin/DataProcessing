@@ -15,30 +15,35 @@ namespace DataProcessing
         List<string> FilesWithErrors { get;  }
         Object _lock { get; set; }
 
-        public LinesCounter(int filesParsed, int linesParsed, int linesError, List<string> filesWithErrors)
+        string logFolder;
+
+        public LinesCounter(string logFolder, int filesParsed, int linesParsed, int linesError, List<string> filesWithErrors)
         {
             LinesParsed = linesParsed;
             LinesError = linesError;
             FilesWithErrors = filesWithErrors;
             FilesParsed = filesParsed;
             _lock = new Object();
+            this.logFolder = logFolder;
         }
-        public LinesCounter(int filesParsed, int linesParsed, int linesError)
+        public LinesCounter(string logFolder, int filesParsed, int linesParsed, int linesError)
         {
             LinesParsed = linesParsed;
             LinesError = linesError;
             FilesParsed = filesParsed;
             FilesWithErrors = new List<string>();
             _lock = new Object();
+            this.logFolder = logFolder;
         }
 
-        public LinesCounter()
+        public LinesCounter(string logFolder)
         {
             LinesParsed = 0;
             LinesError = 0;
             FilesParsed = 0;
             FilesWithErrors = new List<string>();
             _lock = new Object();
+            this.logFolder = logFolder;
         }
 
         public void Add(int linesParsed, int linesError, string fileName)
@@ -65,6 +70,24 @@ namespace DataProcessing
 
 
             return stringBuilder.ToString();
+
+        }
+
+        public void LogToFile()
+        {
+            string fileName = Path.Combine(logFolder, "meta.log");
+            File.WriteAllText(fileName, this.ToString());
+        }
+
+        public void Reset()
+        {
+            lock (_lock)
+            {
+                LinesParsed = 0;
+                LinesError = 0;
+                FilesParsed = 0;
+                FilesWithErrors.Clear();
+            }
 
         }
     }
