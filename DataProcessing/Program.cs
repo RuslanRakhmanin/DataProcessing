@@ -6,6 +6,8 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace DataProcessing // Note: actual namespace depends on the project name.
 {
@@ -14,8 +16,29 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
         static void Main(string[] args)
         {
 
-            string FolderInput = "D:\\Work\\dotNET\\DataProcessing\\folder_a";
-            string FolderOutput = "D:\\Work\\dotNET\\DataProcessing\\folder_b";
+            string FolderInput;
+            string FolderOutput;
+            string FolderMeta;
+
+            if (ConfigurationManager.AppSettings.Get("folder_a") == null)
+            {
+                Console.WriteLine("Error. Folder A is not found in the configuration file.");
+                return;
+            }
+            if (ConfigurationManager.AppSettings.Get("folder_b") == null)
+            {
+                Console.WriteLine("Error. Folder B is not found in the configuration file.");
+                return;
+            }
+            if (ConfigurationManager.AppSettings.Get("folder_c") == null)
+            {
+                Console.WriteLine("Error. Folder C is not found in the configuration file.");
+                return;
+            }
+            FolderInput = ConfigurationManager.AppSettings.Get("folder_a");
+            FolderOutput = ConfigurationManager.AppSettings.Get("folder_b");
+            FolderMeta = ConfigurationManager.AppSettings.Get("folder_c");
+
 
             LinesCounter counter = new LinesCounter();
             FilesCounter filesCounter = new FilesCounter(FolderOutput);
@@ -37,37 +60,7 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
 
             Console.WriteLine(counter);
 
-            //string outFolder;
-            //string fileNameIn, fileNameOut;
-            //int filesParsedTotal = 0;
-            //int linesParsed, linesParsedTotal = 0;
-            //int linesError, linesErrorTotal = 0;
-            //List<string> filesInvalid = new List<string>();
 
-
-            //fileNameIn = Path.Combine(FolderInput, "raw_data.csv");
-
-            //outFolder = Path.Combine(FolderOutput, DateTime.Now.ToString("MM-dd-yyyy"));
-            //if ( !Directory.Exists(outFolder))
-            //{
-            //    Directory.CreateDirectory(outFolder);
-            //}
-            //fileNameOut = Path.Combine(outFolder, string.Format("output{0}.json", filesParsedTotal + 1));
-
-            //(linesParsed, linesError, _) = ProcessFile(fileNameIn, fileNameOut);
-
-            //linesParsedTotal += linesParsed;
-            //linesErrorTotal += linesError;
-            //filesParsedTotal++;
-            //if (linesError > 0)
-            //{
-            //    filesInvalid.Add(fileNameIn);
-            //}
-
-            //Console.WriteLine("parsed_files: {0}", filesParsedTotal);
-            //Console.WriteLine("parsed_lines: {0}", linesParsedTotal);
-            //Console.WriteLine("found_errors: {0}", linesErrorTotal);
-            //Console.WriteLine(JsonSerializer.Serialize(filesInvalid));
         }
     }
 }
