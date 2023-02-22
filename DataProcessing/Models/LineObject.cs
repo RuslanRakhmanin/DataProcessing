@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataProcessing
+namespace DataProcessing.Models
 {
     public class LineObject
     {
         public string firstName { get; }
         public string lastName { get; }
-        public string payerName{ get; }
+        public string payerName { get; }
         public string address { get; }
         public string city { get; }
         public decimal payment { get; }
@@ -18,6 +18,7 @@ namespace DataProcessing
         public long accountNumber { get; }
         public string service { get; }
 
+        
         public LineObject(string firstName, string lastName, string address, string city, decimal payment, DateOnly date, long accountNumber, string service)
         {
             this.firstName = firstName;
@@ -28,7 +29,7 @@ namespace DataProcessing
             this.date = date;
             this.accountNumber = accountNumber;
             this.service = service;
-            this.payerName = firstName + " " + lastName;
+            payerName = firstName + " " + lastName;
         }
 
         public override string ToString()

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataProcessing.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataProcessing
 {
@@ -66,12 +69,13 @@ namespace DataProcessing
             {
                 throw new System.InvalidOperationException("Can't get date.");
             };
-            ReadOnlySpan<char> dataSpan = data;
-            int year = int.Parse(dataSpan.Slice(0, 4));
-            int day = int.Parse(dataSpan.Slice(5, 2));
-            int month = int.Parse(dataSpan.Slice(8, 2));
+            //ReadOnlySpan<char> dataSpan = data;
+            //int year = int.Parse(dataSpan.Slice(0, 4));
+            //int day = int.Parse(dataSpan.Slice(5, 2));
+            //int month = int.Parse(dataSpan.Slice(8, 2));
 
-            return new DateOnly(year, month, day);
+            //return new DateOnly(year, month, day);
+            return DateOnly.ParseExact(data, "yyyy-dd-MM");
 
         }
 
@@ -120,22 +124,38 @@ namespace DataProcessing
 
         }
 
-        static public LineObject ParseLine(string line)
+        static public (LineObject?, bool) ParseLine(string line)
         {
+            string firstName = "";
+            string lastName = "";
+            string address = "";
+            string city = "";
+            decimal payment = 0;
+            DateOnly date = DateOnly.MinValue;
+            long accountNumber = 0;
+            string service = "";
+
             string[] lineArray = line.Split(separationSimbol);
             System.Collections.IEnumerator listEnumerator = lineArray.GetEnumerator();
 
-            string firstName = GetNextString(listEnumerator);
-            string lastName = GetNextString(listEnumerator);
-            string address = GetNextString(listEnumerator);
-            string city = address.Substring(1, address.IndexOf(",") - 1);
-            decimal payment = GetNextDecimal(listEnumerator);
-            DateOnly date = GetNextDate(listEnumerator);
-            long accountNumber = GetNextLong(listEnumerator);
-            string service = GetNextString(listEnumerator);
+            try
+            {
+                firstName = GetNextString(listEnumerator);
+                lastName = GetNextString(listEnumerator);
+                address = GetNextString(listEnumerator);
+                city = address.Substring(1, address.IndexOf(",") - 1);
+                payment = GetNextDecimal(listEnumerator);
+                date = GetNextDate(listEnumerator);
+                accountNumber = GetNextLong(listEnumerator);
+                service = GetNextString(listEnumerator);
+            }
+            catch (Exception e)
+            {
+                return (null, true);
+            }
 
             
-            return new LineObject(firstName, lastName, address, city, payment, date, accountNumber, service);
+            return (new LineObject(firstName, lastName, address, city, payment, date, accountNumber, service), false);
         }
     }
 }

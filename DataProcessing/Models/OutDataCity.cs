@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataProcessing
+namespace DataProcessing.Models
 {
     public class OutDataCity
     {
-        public string city { get;  }
+        public string city { get; }
         public List<OutDataService> services { get; }
         public decimal total { get; }
 
