@@ -91,6 +91,15 @@ namespace DataProcessing
 
         }
 
+        public void Reset()
+        {
+            watcher.EnableRaisingEvents = false;
+            queue.Dispose();
+            processedFileMap.Clear();
+            queue = new BlockingCollection<string>();
+            s_cts.Cancel();
+            StartProcessingFileChanges();
+        }
         public void Dispose()
         {
             watcher.Dispose();

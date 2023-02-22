@@ -8,6 +8,7 @@ using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Configuration;
 using System.Collections.Specialized;
+using System.IO.Pipes;
 
 namespace DataProcessing // Note: actual namespace depends on the project name.
 {
@@ -15,6 +16,28 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
     {
         static void Main(string[] args)
         {
+
+            string pipeGUID = "31de4bd9-204b-4c38-9584-32350c750948";
+            if (ConfigurationManager.AppSettings.Get("pipeGUID") != null)
+            {
+                pipeGUID = ConfigurationManager.AppSettings.Get("pipeGUID");
+            }
+
+
+            if (args.Length > 0)
+            {
+                if (args[0].Equals("stop") || args[0].Equals("reset"))
+                {
+                    var client = new NamedPipeClientStream(".", pipeGUID);
+                    client.Connect();
+                    Console.WriteLine("Client: connected to server");
+                    var writer = new StreamWriter(client);
+                    writer.WriteLine(args[0]);
+                    writer.Flush();
+                    client.Dispose();
+                    return;
+                }
+            }
 
             string FolderInput;
             string FolderOutput;
@@ -54,8 +77,31 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
             Task.Run(() => csvProcessing.StartProcessingFileChanges());
 
 
-            Console.WriteLine("Press Enter to exit");
-            Console.ReadLine();
+
+
+            var server = new NamedPipeServerStream("pipeGUID");
+
+            while (true)
+            {
+                server.WaitForConnection();
+
+                var reader = new StreamReader(server);
+                string? message = reader.ReadLine();
+                
+                if (message != null && message.Equals("reset"))
+                {
+                    counter.Reset();
+                    txtProcessing.Reset();
+                    csvProcessing.Reset();
+                } 
+                else if (message != null && message.Equals("stop"))
+                {
+                    server.Disconnect();
+                    break;
+                }
+
+                server.Disconnect();
+            }
 
             txtProcessing.Dispose();
             csvProcessing.Dispose();
