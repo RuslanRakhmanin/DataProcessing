@@ -91,9 +91,13 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
                 if (message != null && message.Equals("reset"))
                 {
                     counter.Reset();
-                    txtProcessing.Reset();
-                    csvProcessing.Reset();
-                } 
+                    txtProcessing.Dispose();
+                    csvProcessing.Dispose();
+                    txtProcessing = new FilesProcessing(FolderInput, "*.txt", FolderOutput, txtFileProcessor, counter, filesCounter);
+                    Task.Run(() => txtProcessing.StartProcessingFileChanges());
+                    csvProcessing = new FilesProcessing(FolderInput, "*.csv", FolderOutput, csvFileProcessor, counter, filesCounter);
+                    Task.Run(() => csvProcessing.StartProcessingFileChanges());
+                }
                 else if (message != null && message.Equals("stop"))
                 {
                     server.Disconnect();
