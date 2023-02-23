@@ -25,6 +25,7 @@ namespace DataProcessing
             DateTime scheduledTime = DateTime.Today.AddDays(1);
 
             double tickTime = (double)(scheduledTime - DateTime.Now).TotalMilliseconds;
+            //tickTime = 2000;
             timer = new System.Timers.Timer(tickTime);
             timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);
             timer.Start();

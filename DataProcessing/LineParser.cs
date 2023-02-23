@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataProcessing.Models;
+using Serilog;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataProcessing
@@ -151,7 +152,12 @@ namespace DataProcessing
             }
             catch (Exception e)
             {
+                Log.Error(e, "Line parsing error");
                 return (null, true);
+            }
+            finally
+            {
+                Log.CloseAndFlush();
             }
 
             

@@ -9,6 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Configuration;
 using System.Collections.Specialized;
 using System.IO.Pipes;
+using Serilog;
 
 namespace DataProcessing // Note: actual namespace depends on the project name.
 {
@@ -16,6 +17,12 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
     {
         static void Main(string[] args)
         {
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs/DataProcessing.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
 
             string pipeGUID = "31de4bd9-204b-4c38-9584-32350c750948";
             if (ConfigurationManager.AppSettings.Get("pipeGUID") != null)
@@ -30,7 +37,7 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
                 {
                     var client = new NamedPipeClientStream(".", pipeGUID);
                     client.Connect();
-                    Console.WriteLine("Client: connected to server");
+                    Log.Debug("Client: connected to server");
                     var writer = new StreamWriter(client);
                     writer.WriteLine(args[0]);
                     writer.Flush();
@@ -45,17 +52,17 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
 
             if (ConfigurationManager.AppSettings.Get("folder_a") == null)
             {
-                Console.WriteLine("Error. Folder A is not found in the configuration file.");
+                Log.Error("Folder A is not found in the configuration file.");
                 return;
             }
             if (ConfigurationManager.AppSettings.Get("folder_b") == null)
             {
-                Console.WriteLine("Error. Folder B is not found in the configuration file.");
+                Log.Error("Folder B is not found in the configuration file.");
                 return;
             }
             if (ConfigurationManager.AppSettings.Get("folder_c") == null)
             {
-                Console.WriteLine("Error. Folder C is not found in the configuration file.");
+                Log.Error("Folder C is not found in the configuration file.");
                 return;
             }
             FolderInput = ConfigurationManager.AppSettings.Get("folder_a");
@@ -110,7 +117,7 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
             txtProcessing.Dispose();
             csvProcessing.Dispose();
 
-            Console.WriteLine(counter);
+            Log.Debug(counter.ToString());
 
 
         }

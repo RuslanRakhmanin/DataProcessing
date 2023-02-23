@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataProcessing.Interfaces;
+using Serilog;
 
 namespace DataProcessing
 {
@@ -72,9 +73,18 @@ namespace DataProcessing
                     processedFileMap.TryAdd(filePath, fileInfo.LastWriteTimeUtc);
 
                     string fileNameOut = filesCounter.GetNextFileName();
-                    var file = File.Create(fileNameOut);
-                    file.Close();
-                    file.Dispose();
+                    try
+                    {
+                        var file = File.Create(fileNameOut);
+                        file.Flush();
+                        file.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Can't create an output file");
+                        Log.CloseAndFlush();
+                        continue;
+                    }
 
                     Task.Run(() => fileProcessor.ProcessFile(filePath, fileNameOut, this, s_cts.Token), s_cts.Token);
 
@@ -89,6 +99,16 @@ namespace DataProcessing
 
             processedFileMap.Remove(filePath, out DateTime processedWithModDate);
 
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Can't delete file " + filePath);
+                Log.CloseAndFlush();
+            }
+
         }
 
         public void Reset()
@@ -98,7 +118,7 @@ namespace DataProcessing
             processedFileMap.Clear();
             queue = new BlockingCollection<string>();
             s_cts.Cancel();
-            StartProcessingFileChanges();
+            Task.Run(() => StartProcessingFileChanges());
         }
         public void Dispose()
         {

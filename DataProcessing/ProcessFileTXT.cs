@@ -1,5 +1,6 @@
 ﻿using DataProcessing.Interfaces;
 using DataProcessing.Models;
+using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,6 +46,8 @@ namespace DataProcessing
             }
             catch (IOException e)
             {
+                Log.Error(e, "Can't open file " + inputFileName);
+                Log.CloseAndFlush();
                 return (Enumerable.Empty<string>(), true);
             }
 
@@ -116,9 +119,19 @@ namespace DataProcessing
             var options = new JsonSerializerOptions { WriteIndented = true };
 
             //Console.WriteLine(JsonSerializer.Serialize(listOfCities.ToArray(), options));
-            using FileStream createStream = File.Create(outFileName);
-            JsonSerializer.Serialize(createStream, listOfCities.ToArray(), options);
-            createStream.Dispose();
+            try
+            {
+                using FileStream createStream = File.Create(outFileName);
+                JsonSerializer.Serialize(createStream, listOfCities.ToArray(), options);
+                createStream.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Can't write an output file");
+                Log.CloseAndFlush();
+                linesParsed = 0;
+                linesError = 1;
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
 
