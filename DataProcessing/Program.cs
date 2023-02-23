@@ -79,7 +79,7 @@ namespace DataProcessing // Note: actual namespace depends on the project name.
 
 
 
-            var server = new NamedPipeServerStream("pipeGUID");
+            var server = new NamedPipeServerStream(pipeGUID);
 
             while (true)
             {
